@@ -1,524 +1,300 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>טורניר זוגות פדל 2026</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>טורניר זוגות 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Heebo', sans-serif; background: #f0f7f0; color: #1a1a1a; min-height: 100vh; padding: 0; }
-
-  /* BACKGROUND CANVAS */
-  #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-
-  .page { max-width: 600px; margin: 0 auto; padding: 28px 16px; position: relative; z-index: 1; }
-
-  /* HEADER */
-  .header { text-align: center; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1.5px solid #c8e0c8; }
-  .header-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .2em; color: #2d8c55; text-transform: uppercase; margin-bottom: 8px; }
-  .header h1 { font-size: 36px; font-weight: 900; color: #1a1a1a; line-height: 1; margin-bottom: 6px; letter-spacing: -.02em; }
-  .header h1 span { color: #2d8c55; }
-  .header-meta { font-size: 12px; color: #888; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
-
-  /* TABS */
-  .tabs { display: flex; gap: 0; margin-bottom: 22px; background: #d8eed8; border-radius: 10px; padding: 4px; }
-  .tab { flex: 1; padding: 8px 10px; font-size: 12px; font-weight: 600; font-family: 'Heebo', sans-serif; border: none; border-radius: 7px; background: transparent; color: #5a8a5a; cursor: pointer; transition: all .18s; text-align: center; }
-  .tab.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .section-title { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #aaa; text-transform: uppercase; margin: 0 0 10px; }
-
-  /* CARDS */
-  .pairs-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 22px; }
-  .pair-row { background: rgba(255,255,255,.92); border: 1px solid #d0e8d0; border-radius: 10px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(4px); }
-  .pair-num { font-size: 11px; font-weight: 700; color: #b0c8b0; min-width: 18px; }
-  .pair-players { flex: 1; display: flex; align-items: center; gap: 8px; }
-  .player-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-  .pair-plus { font-size: 14px; color: #ccc; font-weight: 300; }
-  .participants-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-  .participant-cell { background: rgba(255,255,255,.85); border: 1px solid #d0e8d0; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #1a1a1a; backdrop-filter: blur(4px); }
-  .participant-cell .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: #90c890; }
-
-  /* SCHEDULE */
-  .timeline-bar { display: grid; grid-template-columns: repeat(7,1fr); border-radius: 10px; overflow: hidden; margin-bottom: 20px; border: 1px solid #c8e0c8; }
-  .tl-seg { padding: 7px 3px; text-align: center; border-left: 1px solid rgba(255,255,255,.6); }
-  .tl-seg:last-child { border-left: none; }
-  .tl-seg.league { background: #d8f0d8; }
-  .tl-seg.brk { background: #fef5d8; }
-  .tl-seg.ko { background: #fde0d8; }
-  .tl-seg.final { background: #d8e8fd; }
-  .tl-time { font-size: 11px; font-weight: 700; }
-  .tl-seg.league .tl-time { color: #2d8c55; }
-  .tl-seg.brk .tl-time { color: #b07d10; }
-  .tl-seg.ko .tl-time { color: #c0392b; }
-  .tl-seg.final .tl-time { color: #2563b8; }
-  .tl-lbl { font-size: 9px; color: #aaa; margin-top: 1px; }
-
-  .phase-header { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; }
-  .phase-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
-  .pb-league { background: #d8f0d8; color: #2d8c55; }
-  .pb-ko { background: #fde0d8; color: #c0392b; }
-  .pb-final { background: #d8e8fd; color: #2563b8; }
-  .phase-desc { font-size: 11px; color: #aaa; }
-
-  .match-row { background: rgba(255,255,255,.90); border: 1px solid #d0e8d0; border-radius: 9px; padding: 10px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(4px); }
-  .match-time-badge { font-size: 11px; font-weight: 700; color: #2d8c55; background: #d8f0d8; padding: 3px 9px; border-radius: 20px; white-space: nowrap; min-width: 90px; text-align: center; }
-  .match-time-badge.ko { background: #fde0d8; color: #c0392b; }
-  .match-time-badge.final-b { background: #d8e8fd; color: #2563b8; }
-  .match-court { font-size: 10px; font-weight: 700; color: #b0c8b0; letter-spacing: .08em; min-width: 52px; text-align: center; }
-  .match-teams { flex: 1; display: flex; align-items: center; gap: 6px; }
-  .team-name { font-size: 12px; font-weight: 600; color: #1a1a1a; }
-  .vs-sep { font-size: 10px; color: #ccc; flex-shrink: 0; }
-  .match-sit { background: rgba(248,248,244,.7); border: 1px dashed #c8e0c8; border-radius: 9px; padding: 8px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; opacity: .6; }
-  .sit-badge { font-size: 10px; color: #aaa; background: #e8f0e8; padding: 3px 9px; border-radius: 20px; white-space: nowrap; min-width: 90px; text-align: center; }
-
-  .divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
-  .divider-line { flex: 1; border-top: 1px solid #c8e0c8; }
-  .divider-text { font-size: 10px; color: #b07d10; white-space: nowrap; background: #fef5d8; padding: 4px 12px; border-radius: 20px; border: 1px solid #e8d890; }
-
-  .ko-row { background: rgba(255,255,255,.90); border: 1px solid #d0e8d0; border-radius: 9px; padding: 10px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(4px); }
-  .ko-gold-badge { font-size: 11px; font-weight: 700; color: #b09020; background: #fffbd8; border: 1px solid #e8d060; padding: 3px 9px; border-radius: 20px; white-space: nowrap; min-width: 90px; text-align: center; }
-  .ko-silver-badge { font-size: 11px; font-weight: 700; color: #555; background: #f0f0f0; border: 1px solid #ddd; padding: 3px 9px; border-radius: 20px; white-space: nowrap; min-width: 90px; text-align: center; }
-  .ko-bronze-badge { font-size: 11px; font-weight: 700; color: #c06030; background: #fff0e8; border: 1px solid #e8b090; padding: 3px 9px; border-radius: 20px; white-space: nowrap; min-width: 90px; text-align: center; }
-
-  .footer-note { font-size: 11px; color: #aaa; margin-top: 16px; padding-top: 14px; border-top: 1px solid #d0e8d0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
-  .footer-pill { background: #e8f0e8; padding: 4px 10px; border-radius: 6px; font-size: 11px; color: #6a9a6a; }
-
-  /* ADMIN */
-  .admin-intro { font-size: 12px; color: #888; margin-bottom: 16px; background: rgba(255,255,255,.90); border: 1px solid #d0e8d0; border-radius: 9px; padding: 10px 14px; }
-  .admin-round { margin-bottom: 18px; }
-  .admin-round-title { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-  .admin-round-time { font-size: 10px; font-weight: 500; color: #2d8c55; background: #d8f0d8; padding: 2px 8px; border-radius: 20px; }
-  .admin-match-row { background: rgba(255,255,255,.90); border: 1px solid #d0e8d0; border-radius: 9px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
-  .admin-court-lbl { font-size: 10px; font-weight: 700; color: #b0c8b0; min-width: 50px; }
-  .admin-teams { flex: 1; font-size: 12px; font-weight: 600; color: #1a1a1a; }
-  .admin-teams .vs { color: #ccc; font-weight: 400; margin: 0 4px; }
-  .score-inputs { display: flex; align-items: center; gap: 4px; }
-  .score-input { width: 36px; height: 30px; border: 1.5px solid #c8e0c8; border-radius: 6px; text-align: center; font-size: 14px; font-weight: 700; font-family: 'Heebo', sans-serif; color: #1a1a1a; background: #f0f8f0; outline: none; transition: border .15s; }
-  .score-input:focus { border-color: #2d8c55; background: #fff; }
-  .score-sep { font-size: 13px; color: #ccc; font-weight: 300; }
-  .save-btn { font-size: 10px; font-weight: 700; font-family: 'Heebo', sans-serif; padding: 5px 10px; border-radius: 6px; border: none; background: #d8f0d8; color: #2d8c55; cursor: pointer; transition: background .15s; }
-  .save-btn:hover { background: #b8e0b8; }
-  .save-btn.saved { background: #2d8c55; color: #fff; }
-
-  .standings-section { margin-top: 24px; }
-  .standings-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.92); border-radius: 10px; overflow: hidden; border: 1px solid #d0e8d0; backdrop-filter: blur(4px); }
-  .standings-table th { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: #aaa; text-transform: uppercase; padding: 8px 10px; text-align: right; background: #eaf4ea; border-bottom: 1px solid #d0e8d0; }
-  .standings-table td { font-size: 13px; padding: 9px 10px; border-bottom: 1px solid #eaf4ea; color: #1a1a1a; }
-  .standings-table tr:last-child td { border-bottom: none; }
-  .standings-table tr.highlight td { background: #f0fbf0; }
-  .rank-num { font-size: 11px; font-weight: 700; color: #aaa; }
-  .rank-1 { color: #b09020; }
-  .rank-2 { color: #888; }
-  .rank-3 { color: #c06030; }
-  .pair-cell { font-weight: 600; }
-  .pts-cell { font-weight: 700; color: #2d8c55; }
-  .update-note { font-size: 10px; color: #bbb; text-align: center; margin-top: 8px; }
-
-  @media print {
-    #bg-canvas { display: none; }
-    body { background: #fff; }
-    .tabs { display: none; }
-    .panel { display: block !important; }
-    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root{
+    --clay:#c86f3c; --clay-dark:#93451f; --clay-soft:#f2c2a3;
+    --green:#174c35; --green-2:#226647; --cream:#fff8ec; --paper:#fffdf7;
+    --line:#ead3bd; --muted:#897468; --shadow:0 10px 30px rgba(89,43,17,.10);
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Heebo',sans-serif;background:linear-gradient(145deg,#fff8ec 0%,#f7e0cc 42%,#f1b483 100%);color:#1e1b18;min-height:100vh;padding-bottom:82px}
+  .page{max-width:720px;margin:0 auto;padding:18px 12px 92px}
+  .hero{background:linear-gradient(135deg,var(--green),#0f3426);color:#fff;border-radius:22px;padding:18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;inset:auto -40px -80px auto;width:170px;height:170px;background:radial-gradient(circle,#d7ff8d 0 9%,transparent 10% 100%);opacity:.18;border-radius:50%;border:2px solid rgba(255,255,255,.22)}
+  .eyebrow{font-size:11px;letter-spacing:.20em;font-weight:900;color:#f2c2a3;text-transform:uppercase}
+  h1{font-size:34px;line-height:1;font-weight:900;margin:6px 0 8px}.meta{display:flex;gap:8px;flex-wrap:wrap}.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .status{margin-top:12px;font-size:12px;color:#f8dfcc}.status b{color:#fff}.firebase-warning{margin-top:10px;background:#fff3cd;color:#6d4b00;border:1px solid #f0d78c;border-radius:12px;padding:9px 11px;font-size:12px;display:none}
+  .card{background:rgba(255,253,247,.92);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
+  .card-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.card-title h2{font-size:17px;color:var(--green);font-weight:900}.small{font-size:12px;color:var(--muted)}
+  .select-row{display:flex;gap:8px}.select-row select,.select-row button,.admin-code{height:46px;border-radius:14px;border:1px solid var(--line);font-family:'Heebo';font-weight:800;font-size:15px;background:#fff;color:#1f1b18}.select-row select{flex:1;padding:0 12px}.btn{border:0!important;background:var(--green)!important;color:#fff!important;padding:0 14px;cursor:pointer;box-shadow:0 6px 14px rgba(23,76,53,.18)}.btn.secondary{background:#fff!important;color:var(--green)!important;border:1px solid var(--green)!important}.btn.danger{background:#963c1a!important}.btn:active{transform:translateY(1px)}
+  .my-match{border:2px solid var(--green);background:linear-gradient(135deg,#fffdf7,#f7eadc)}.my-match .big{font-size:20px;font-weight:900;color:var(--green);margin:4px 0}.court-line{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.court-line span{background:#f2e1ce;border:1px solid #e1c3a5;color:#6b3a1c;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+  .tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,248,236,.94);border-top:1px solid var(--line);display:flex;gap:6px;padding:9px 10px calc(9px + env(safe-area-inset-bottom));z-index:20;backdrop-filter:blur(12px)}.tab{flex:1;border:0;border-radius:15px;background:#f4dcc7;color:#744322;padding:10px 4px;font-family:'Heebo';font-size:12px;font-weight:900}.tab.active{background:var(--green);color:#fff}
+  .panel{display:none}.panel.active{display:block}.section-title{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:14px 2px 8px}
+  .pair-grid{display:flex;flex-direction:column;gap:9px}.pair-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:11px 12px;display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;cursor:pointer}.pair-color{width:8px;height:52px;border-radius:999px}.pair-name{font-size:16px;font-weight:900}.pair-sub{font-size:11px;color:var(--muted);margin-top:2px}.pair-stats{display:flex;gap:6px}.stat{min-width:38px;text-align:center;background:#f8ecdf;border:1px solid #ead3bd;border-radius:10px;padding:5px 6px}.stat b{display:block;font-size:16px;line-height:1;color:var(--green)}.stat span{font-size:10px;color:var(--muted);font-weight:700}.highlight-mine{outline:2px solid var(--green);box-shadow:0 0 0 5px rgba(23,76,53,.07)}
+  .modal{position:fixed;inset:0;background:rgba(31,20,12,.44);display:none;align-items:flex-end;z-index:40}.modal.show{display:flex}.sheet{background:#fff8ec;width:100%;max-width:720px;margin:0 auto;border-radius:24px 24px 0 0;padding:16px;max-height:82vh;overflow:auto}.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.close{border:0;background:#ead3bd;border-radius:50%;width:36px;height:36px;font-size:18px}
+  .match-list{display:flex;flex-direction:column;gap:14px}.schedule-round{background:rgba(255,253,247,.78);border:1px solid var(--line);border-radius:20px;padding:10px;box-shadow:0 8px 22px rgba(89,43,17,.07)}.schedule-round-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,var(--clay),var(--clay-dark));color:#fff;border-radius:15px;padding:10px 12px;margin-bottom:10px}.schedule-round-head b{font-size:16px}.schedule-round-head span{font-size:12px;font-weight:800;background:rgba(255,255,255,.18);padding:4px 9px;border-radius:999px}.schedule-round-games{display:flex;flex-direction:column;gap:8px}.match{background:#fff;border:1px solid var(--line);border-radius:16px;padding:11px}.match.mine{border:2px solid var(--green);background:#fffdf7}.match.done{opacity:.82}.match-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px}.time{font-weight:900;color:var(--clay-dark);font-size:13px}.court{font-size:12px;background:#f2e1ce;color:#6b3a1c;border-radius:999px;padding:3px 8px;font-weight:800}.teams{font-size:14px;font-weight:800}.score{font-size:18px;color:var(--green);font-weight:900;margin-top:4px}.wait{background:#f7eadc;color:#744322;border-style:dashed}.ko{border-color:#cfa366;background:#fff9e8}
+  .admin-tools{display:flex;gap:8px;flex-wrap:wrap}.admin-code{width:130px;padding:0 12px}.admin-only{display:none}.admin-on .admin-only{display:block}.admin-on .admin-only.flex{display:flex}.score-box{margin-top:8px;background:#f8ecdf;border:1px solid #ead3bd;border-radius:14px;padding:10px}.score-title{font-size:13px;font-weight:900;color:var(--green);margin-bottom:8px}.score-input-row{display:grid;grid-template-columns:1fr 66px 20px 66px 1fr;align-items:center;gap:6px}.team-lbl{font-size:12px;font-weight:800}.score-input{height:54px;border-radius:14px;border:2px solid #dfc2a6;background:#fff;text-align:center;font-size:24px;font-weight:900;font-family:'Heebo';width:66px}.save-result{width:100%;height:48px;border-radius:14px;margin-top:10px;font-size:16px}.hint{font-size:11px;color:var(--muted);margin-top:6px}
+  .admin-round-card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:0 0 12px;overflow:hidden;box-shadow:var(--shadow)}
+  .admin-round-head{background:linear-gradient(135deg,var(--green),#22543d);color:#fff;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .admin-round-head b{font-size:16px}.admin-round-head span{font-size:12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 9px;font-weight:800}
+  .admin-round-body{padding:10px;display:flex;flex-direction:column;gap:9px}
+  .admin-match-card{border:1px solid #ead3bd;background:#fffdf7;border-radius:16px;padding:10px}
+  .admin-match-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.admin-match-title .court{background:#f2e1ce}
+  .admin-score-line{display:grid;grid-template-columns:1fr 62px 20px 62px 1fr;align-items:center;gap:6px}.admin-score-line input{height:52px;border-radius:14px;border:2px solid #dfc2a6;background:#fff;text-align:center;font-size:23px;font-weight:900;font-family:'Heebo';width:62px}.admin-save{width:100%;height:44px;border-radius:14px;margin-top:9px;font-size:15px}
+  .admin-locked{background:#fff3cd;border:1px solid #f0d78c;color:#6d4b00;border-radius:14px;padding:12px;font-size:13px;font-weight:700}
+  @media (max-width:520px){.admin-score-line{grid-template-columns:1fr 54px 14px 54px 1fr}.admin-score-line input{width:54px;height:50px}.admin-round-head{padding:10px 11px}}
+  .champion{display:none;text-align:center;padding:18px}.champion.show{display:block}.champion .cup{font-size:46px}.champion h2{color:var(--green);font-size:24px}.confetti{position:fixed;inset:0;pointer-events:none;display:none;z-index:60}.confetti.show{display:block}.confetti i{position:absolute;width:8px;height:14px;background:var(--clay);animation:fall 2.6s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(460deg);opacity:.2}}
+  @media (max-width:520px){.page{padding:12px 9px 92px}h1{font-size:30px}.pair-card{grid-template-columns:7px 1fr}.pair-stats{grid-column:2/3;justify-content:space-between}.stat{flex:1}.select-row{flex-direction:column}.score-input-row{grid-template-columns:1fr 58px 14px 58px 1fr}.score-input{width:58px;height:52px}.team-lbl{font-size:11px}.hero{border-radius:18px}}
+  @media print{.tabs,.admin-tools,.score-box,.select-row{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
 </style>
 </head>
 <body>
-
-<canvas id="bg-canvas"></canvas>
-
-<div class="page">
-  <div class="header">
-    <div class="header-eyebrow">טורניר פדל</div>
-    <h1>זוגות <span>2026</span></h1>
-    <div class="header-meta">
-      <span>14 משתתפים</span>
-      <span>7 זוגות</span>
-      <span>3 מגרשים</span>
-      <span>19:00 – 22:15</span>
-    </div>
+<div class="page" id="app">
+  <div class="hero">
+    <div class="eyebrow">Roland Garros Style</div>
+    <h1>טורניר זוגות 2026</h1>
+    <div class="meta"><span class="pill">14 משתתפים</span><span class="pill">7 זוגות</span><span class="pill">3 מגרשים</span><span class="pill">19:00–22:15</span></div>
+    <div class="status" id="connectionStatus">מצב: <b>מנסה להתחבר ל‑Firebase...</b></div>
+    <div class="firebase-warning" id="firebaseWarning">צריך להדביק את פרטי ה‑Firebase שלך בתוך הקובץ באזור <b>firebaseConfig</b>. עד אז האתר יעבוד מקומית בלבד במכשיר הזה.</div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('pairs',this)">משתתפים</button>
-    <button class="tab" onclick="showTab('schedule',this)">לוח משחקים</button>
-    <button class="tab" onclick="showTab('admin',this)">ניהול תוצאות</button>
+  <div class="card">
+    <div class="card-title"><h2>בחרו את הזוג שלכם</h2><span class="small">נשמר בטלפון</span></div>
+    <div class="select-row"><select id="myPairSelect"></select><button class="btn" onclick="saveMyPair()">שמור זוג</button></div>
   </div>
 
-  <!-- TAB 1 -->
-  <div class="panel active" id="tab-pairs">
-    <div class="section-title">חלוקה לזוגות</div>
-    <div class="pairs-list">
-      <div class="pair-row"><div class="pair-num">1</div><div class="pair-players"><span class="player-name">מיקי</span><span class="pair-plus">+</span><span class="player-name">דודו</span></div></div>
-      <div class="pair-row"><div class="pair-num">2</div><div class="pair-players"><span class="player-name">סער</span><span class="pair-plus">+</span><span class="player-name">עומר</span></div></div>
-      <div class="pair-row"><div class="pair-num">3</div><div class="pair-players"><span class="player-name">רענן</span><span class="pair-plus">+</span><span class="player-name">מורן</span></div></div>
-      <div class="pair-row"><div class="pair-num">4</div><div class="pair-players"><span class="player-name">אסף</span><span class="pair-plus">+</span><span class="player-name">טל</span></div></div>
-      <div class="pair-row"><div class="pair-num">5</div><div class="pair-players"><span class="player-name">דניס</span><span class="pair-plus">+</span><span class="player-name">דניאל</span></div></div>
-      <div class="pair-row"><div class="pair-num">6</div><div class="pair-players"><span class="player-name">שמעון</span><span class="pair-plus">+</span><span class="player-name">תומר</span></div></div>
-      <div class="pair-row"><div class="pair-num">7</div><div class="pair-players"><span class="player-name">מרקו</span><span class="pair-plus">+</span><span class="player-name">אשר</span></div></div>
-    </div>
-    <div class="section-title">כל המשתתפים — 14</div>
-    <div class="participants-grid">
-      <div class="participant-cell"><span class="dot"></span>דניס</div>
-      <div class="participant-cell"><span class="dot"></span>דניאל</div>
-      <div class="participant-cell"><span class="dot"></span>שמעון</div>
-      <div class="participant-cell"><span class="dot"></span>תומר</div>
-      <div class="participant-cell"><span class="dot"></span>מרקו</div>
-      <div class="participant-cell"><span class="dot"></span>אשר</div>
-      <div class="participant-cell"><span class="dot"></span>מיקי</div>
-      <div class="participant-cell"><span class="dot"></span>דודו</div>
-      <div class="participant-cell"><span class="dot"></span>סער</div>
-      <div class="participant-cell"><span class="dot"></span>עומר</div>
-      <div class="participant-cell"><span class="dot"></span>רענן</div>
-      <div class="participant-cell"><span class="dot"></span>מורן</div>
-      <div class="participant-cell"><span class="dot"></span>אסף</div>
-      <div class="participant-cell"><span class="dot"></span>טל</div>
-    </div>
+  <div class="card my-match" id="nextMatchCard"></div>
+
+  <div class="card admin-tools">
+    <input class="admin-code" id="adminCode" placeholder="קוד מנהל" inputmode="numeric" />
+    <button class="btn secondary" onclick="toggleAdmin()">מצב מנהל</button>
+    <button class="btn secondary admin-only" onclick="window.print()">הדפס</button>
+    <button class="btn danger admin-only" onclick="resetTournament()">איפוס תוצאות</button>
+    <div class="small" style="width:100%">קוד ברירת מחדל: 2026 — אפשר לשנות בקובץ.</div>
   </div>
 
-  <!-- TAB 2 -->
-  <div class="panel" id="tab-schedule">
-    <div class="timeline-bar">
-      <div class="tl-seg league"><div class="tl-time">19:00</div><div class="tl-lbl">סבב 1</div></div>
-      <div class="tl-seg league"><div class="tl-time">19:30</div><div class="tl-lbl">סבב 2</div></div>
-      <div class="tl-seg league"><div class="tl-time">20:00</div><div class="tl-lbl">סבב 3</div></div>
-      <div class="tl-seg league"><div class="tl-time">20:30</div><div class="tl-lbl">סבב 4</div></div>
-      <div class="tl-seg brk"><div class="tl-time">21:00</div><div class="tl-lbl">הפסקה</div></div>
-      <div class="tl-seg ko"><div class="tl-time">21:15</div><div class="tl-lbl">חצי גמר</div></div>
-      <div class="tl-seg final"><div class="tl-time">21:45</div><div class="tl-lbl">גמר 🏆</div></div>
-    </div>
-
-    <div class="phase-header"><span class="phase-badge pb-league">שלב ליגה</span><span class="phase-desc">כל זוג משחק 3 פעמים, יושב פעם אחת</span></div>
-
-    <div class="section-title" style="margin-top:4px">סבב 1</div>
-    <div class="match-row"><span class="match-time-badge">19:00 – 19:30</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">דניס + דניאל</span><span class="vs-sep">נגד</span><span class="team-name">מיקי + דודו</span></div></div>
-    <div class="match-row"><span class="match-time-badge">19:00 – 19:30</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">שמעון + תומר</span><span class="vs-sep">נגד</span><span class="team-name">סער + עומר</span></div></div>
-    <div class="match-row"><span class="match-time-badge">19:00 – 19:30</span><span class="match-court">מגרש 3</span><div class="match-teams"><span class="team-name">מרקו + אשר</span><span class="vs-sep">נגד</span><span class="team-name">אסף + טל</span></div></div>
-    <div class="match-sit"><span class="sit-badge">ממתין</span><span style="font-size:12px;color:#999">רענן + מורן</span></div>
-
-    <div class="section-title" style="margin-top:14px">סבב 2</div>
-    <div class="match-row"><span class="match-time-badge">19:30 – 20:00</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">מרקו + אשר</span><span class="vs-sep">נגד</span><span class="team-name">סער + עומר</span></div></div>
-    <div class="match-row"><span class="match-time-badge">19:30 – 20:00</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">דניס + דניאל</span><span class="vs-sep">נגד</span><span class="team-name">רענן + מורן</span></div></div>
-    <div class="match-row"><span class="match-time-badge">19:30 – 20:00</span><span class="match-court">מגרש 3</span><div class="match-teams"><span class="team-name">מיקי + דודו</span><span class="vs-sep">נגד</span><span class="team-name">אסף + טל</span></div></div>
-    <div class="match-sit"><span class="sit-badge">ממתין</span><span style="font-size:12px;color:#999">שמעון + תומר</span></div>
-
-    <div class="section-title" style="margin-top:14px">סבב 3</div>
-    <div class="match-row"><span class="match-time-badge">20:00 – 20:30</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">שמעון + תומר</span><span class="vs-sep">נגד</span><span class="team-name">רענן + מורן</span></div></div>
-    <div class="match-row"><span class="match-time-badge">20:00 – 20:30</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">מרקו + אשר</span><span class="vs-sep">נגד</span><span class="team-name">מיקי + דודו</span></div></div>
-    <div class="match-row"><span class="match-time-badge">20:00 – 20:30</span><span class="match-court">מגרש 3</span><div class="match-teams"><span class="team-name">דניס + דניאל</span><span class="vs-sep">נגד</span><span class="team-name">אסף + טל</span></div></div>
-    <div class="match-sit"><span class="sit-badge">ממתין</span><span style="font-size:12px;color:#999">סער + עומר</span></div>
-
-    <div class="section-title" style="margin-top:14px">סבב 4</div>
-    <div class="match-row"><span class="match-time-badge">20:30 – 21:00</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">שמעון + תומר</span><span class="vs-sep">נגד</span><span class="team-name">אסף + טל</span></div></div>
-    <div class="match-row"><span class="match-time-badge">20:30 – 21:00</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">סער + עומר</span><span class="vs-sep">נגד</span><span class="team-name">רענן + מורן</span></div></div>
-    <div class="match-row"><span class="match-time-badge">20:30 – 21:00</span><span class="match-court">מגרש 3</span><div class="match-teams"><span class="team-name">מרקו + אשר</span><span class="vs-sep">נגד</span><span class="team-name">מיקי + דודו</span></div></div>
-    <div class="match-sit"><span class="sit-badge">ממתין</span><span style="font-size:12px;color:#999">דניס + דניאל</span></div>
-
-    <div class="divider"><div class="divider-line"></div><div class="divider-text">21:00 — מגרש 3 נסגר | הפסקה 15 דק׳</div><div class="divider-line"></div></div>
-
-    <div class="phase-header"><span class="phase-badge pb-ko">חצי גמר</span><span class="phase-desc">מגרשים 1 + 2 בלבד</span></div>
-    <div class="ko-row"><span class="ko-gold-badge">21:15 – 21:45</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">#1 בדירוג</span><span class="vs-sep">נגד</span><span class="team-name">#4 בדירוג</span></div></div>
-    <div class="ko-row"><span class="ko-silver-badge">21:15 – 21:45</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">#2 בדירוג</span><span class="vs-sep">נגד</span><span class="team-name">#3 בדירוג</span></div></div>
-
-    <div class="phase-header" style="margin-top:14px"><span class="phase-badge pb-final">גמר 🏆</span><span class="phase-desc">מגרש 1 | כולם צופים</span></div>
-    <div class="ko-row" style="border-color:#b8d0f0;"><span class="ko-gold-badge" style="background:#d8e8fd;color:#2563b8;border-color:#90b8e8;">21:45 – 22:15</span><span class="match-court">מגרש 1</span><div class="match-teams"><span class="team-name">מנצח חצי א׳</span><span class="vs-sep">נגד</span><span class="team-name">מנצח חצי ב׳</span></div></div>
-    <div class="ko-row"><span class="ko-bronze-badge">21:45 – 22:15</span><span class="match-court">מגרש 2</span><div class="match-teams"><span class="team-name">מפסיד חצי א׳</span><span class="vs-sep">נגד</span><span class="team-name">מפסיד חצי ב׳</span></div></div>
-
-    <div class="footer-note">
-      <span>ניצחון = 3 נק׳ | תיקו = 1 | הפסד = 0</span>
-      <span class="footer-pill">כל זוג: 3 ליגה + עד 2 נוקאאוט</span>
-    </div>
-  </div>
-
-  <!-- TAB 3 -->
-  <div class="panel" id="tab-admin">
-    <div class="admin-intro">הזן תוצאות — הטבלה מתעדכנת אוטומטית. ניצחון = 3 נק׳ | תיקו = 1 | הפסד = 0</div>
-
-    <div class="admin-round">
-      <div class="admin-round-title">סבב 1 <span class="admin-round-time">19:00 – 19:30</span></div>
-      <div class="admin-match-row" data-match="0"><span class="admin-court-lbl">מגרש 1</span><div class="admin-teams">דניס+דניאל <span class="vs">נגד</span> מיקי+דודו</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(0)">שמור</button></div>
-      <div class="admin-match-row" data-match="1"><span class="admin-court-lbl">מגרש 2</span><div class="admin-teams">שמעון+תומר <span class="vs">נגד</span> סער+עומר</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(1)">שמור</button></div>
-      <div class="admin-match-row" data-match="2"><span class="admin-court-lbl">מגרש 3</span><div class="admin-teams">מרקו+אשר <span class="vs">נגד</span> אסף+טל</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(2)">שמור</button></div>
-    </div>
-    <div class="admin-round">
-      <div class="admin-round-title">סבב 2 <span class="admin-round-time">19:30 – 20:00</span></div>
-      <div class="admin-match-row" data-match="3"><span class="admin-court-lbl">מגרש 1</span><div class="admin-teams">מרקו+אשר <span class="vs">נגד</span> סער+עומר</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(3)">שמור</button></div>
-      <div class="admin-match-row" data-match="4"><span class="admin-court-lbl">מגרש 2</span><div class="admin-teams">דניס+דניאל <span class="vs">נגד</span> רענן+מורן</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(4)">שמור</button></div>
-      <div class="admin-match-row" data-match="5"><span class="admin-court-lbl">מגרש 3</span><div class="admin-teams">מיקי+דודו <span class="vs">נגד</span> אסף+טל</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(5)">שמור</button></div>
-    </div>
-    <div class="admin-round">
-      <div class="admin-round-title">סבב 3 <span class="admin-round-time">20:00 – 20:30</span></div>
-      <div class="admin-match-row" data-match="6"><span class="admin-court-lbl">מגרש 1</span><div class="admin-teams">שמעון+תומר <span class="vs">נגד</span> רענן+מורן</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(6)">שמור</button></div>
-      <div class="admin-match-row" data-match="7"><span class="admin-court-lbl">מגרש 2</span><div class="admin-teams">מרקו+אשר <span class="vs">נגד</span> מיקי+דודו</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(7)">שמור</button></div>
-      <div class="admin-match-row" data-match="8"><span class="admin-court-lbl">מגרש 3</span><div class="admin-teams">דניס+דניאל <span class="vs">נגד</span> אסף+טל</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(8)">שמור</button></div>
-    </div>
-    <div class="admin-round">
-      <div class="admin-round-title">סבב 4 <span class="admin-round-time">20:30 – 21:00</span></div>
-      <div class="admin-match-row" data-match="9"><span class="admin-court-lbl">מגרש 1</span><div class="admin-teams">שמעון+תומר <span class="vs">נגד</span> אסף+טל</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(9)">שמור</button></div>
-      <div class="admin-match-row" data-match="10"><span class="admin-court-lbl">מגרש 2</span><div class="admin-teams">סער+עומר <span class="vs">נגד</span> רענן+מורן</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(10)">שמור</button></div>
-      <div class="admin-match-row" data-match="11"><span class="admin-court-lbl">מגרש 3</span><div class="admin-teams">מרקו+אשר <span class="vs">נגד</span> מיקי+דודו</div><div class="score-inputs"><input class="score-input" type="number" min="0" max="99" placeholder="–"><span class="score-sep">:</span><input class="score-input" type="number" min="0" max="99" placeholder="–"></div><button class="save-btn" onclick="saveMatch(11)">שמור</button></div>
-    </div>
-
-    <div class="standings-section">
-      <div class="section-title">טבלת דירוג</div>
-      <table class="standings-table">
-        <thead>
-          <tr>
-            <th style="width:28px">#</th>
-            <th>זוג</th>
-            <th style="text-align:center;width:36px">מ׳</th>
-            <th style="text-align:center;width:36px">נ׳</th>
-            <th style="text-align:center;width:36px">ה׳</th>
-            <th style="text-align:center;width:36px">ת׳</th>
-            <th style="text-align:center;width:44px">נק׳</th>
-          </tr>
-        </thead>
-        <tbody id="standings-body"></tbody>
-      </table>
-      <div class="update-note">מתעדכן אוטומטית עם כל שמירת תוצאה</div>
-    </div>
-  </div>
+  <div class="panel active" id="panelPairs"><div class="section-title">זוגות + ניקוד חי</div><div class="pair-grid" id="pairsGrid"></div></div>
+  <div class="panel" id="panelSchedule"><div class="section-title">לוח משחקים</div><div class="match-list" id="scheduleList"></div></div>
+  <div class="panel" id="panelResults"><div class="section-title">אדמין — הזנת תוצאות לפי 4 סבבים</div><div id="resultsList"></div></div>
+  <div class="panel" id="panelFinals"><div class="section-title">נוקאאוט וגמר</div><div class="match-list" id="finalsList"></div><div class="champion" id="championBox"></div></div>
 </div>
 
-<script>
-// ── background canvas ──────────────────────────────────────────
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('Pairs',this)">🏠 זוגות</button>
+  <button class="tab" onclick="showPanel('Schedule',this)">📅 משחקים</button>
+  <button class="tab" onclick="showPanel('Results',this)">🔐 אדמין</button>
+  <button class="tab" onclick="showPanel('Finals',this)">🏆 גמר</button>
+</div>
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', () => { resize(); drawBg(); });
+<div class="modal" id="pairModal" onclick="if(event.target.id==='pairModal') closeModal()"><div class="sheet"><div class="sheet-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">×</button></div><div class="match-list" id="modalMatches"></div></div></div>
+<div class="confetti" id="confetti"></div>
 
-// Object types: 'ball', 'racket', 'diamond' (court gem)
-const OBJECTS = [];
+<script type="module">
+// ===============================
+// 1) הדבק כאן את פרטי Firebase שלך
+// Firebase Console > Project settings > Web app
+// ===============================
+const firebaseConfig = {
+  apiKey: "AIzaSyAwXztaiSEArNZiNh2IjNAugoB9UTs6fdA",
+  authDomain: "tennis-tournament-6a5ef.firebaseapp.com",
+  databaseURL: "https://tennis-tournament-6a5ef-default-rtdb.firebaseio.com",
+  projectId: "tennis-tournament-6a5ef",
+  storageBucket: "tennis-tournament-6a5ef.firebasestorage.app",
+  messagingSenderId: "238071879999",
+  appId: "1:238071879999:web:2a9f659bd75b77bf5f9b8a",
+  measurementId: "G-BG5TRJCJ0Y"
+};
 
-function initObjects() {
-  OBJECTS.length = 0;
-  const W = canvas.width, H = canvas.height;
-  // balls
-  for (let i = 0; i < 18; i++) {
-    OBJECTS.push({
-      type: 'ball',
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: 10 + Math.random() * 14,
-      vx: (Math.random() - .5) * .35,
-      vy: (Math.random() - .5) * .35,
-      alpha: .12 + Math.random() * .13,
-      color: Math.random() > .5 ? '#4db87a' : '#c8e870'
+const ADMIN_CODE = '2026';
+const TOURNAMENT_ID = 'doubles-2026';
+
+const PAIRS = [
+  {id:0,name:'מיקי + דודו',players:['מיקי','דודו'],color:'#2f855a'},
+  {id:1,name:'סער + עומר',players:['סער','עומר'],color:'#2b6cb0'},
+  {id:2,name:'רענן + מורן',players:['רענן','מורן'],color:'#805ad5'},
+  {id:3,name:'אסף + טל',players:['אסף','טל'],color:'#d69e2e'},
+  {id:4,name:'דניס + דניאל',players:['דניס','דניאל'],color:'#c05621'},
+  {id:5,name:'שמעון + תומר',players:['שמעון','תומר'],color:'#319795'},
+  {id:6,name:'מרקו + אשר',players:['מרקו','אשר'],color:'#e53e3e'}
+];
+
+const LEAGUE_MATCHES = [
+  {id:'m0',round:'סבב 1',time:'19:00–19:30',court:'מגרש 1',a:4,b:0},
+  {id:'m1',round:'סבב 1',time:'19:00–19:30',court:'מגרש 2',a:5,b:1},
+  {id:'m2',round:'סבב 1',time:'19:00–19:30',court:'מגרש 3',a:6,b:3},
+  {id:'m3',round:'סבב 2',time:'19:30–20:00',court:'מגרש 1',a:6,b:1},
+  {id:'m4',round:'סבב 2',time:'19:30–20:00',court:'מגרש 2',a:4,b:2},
+  {id:'m5',round:'סבב 2',time:'19:30–20:00',court:'מגרש 3',a:0,b:3},
+  {id:'m6',round:'סבב 3',time:'20:00–20:30',court:'מגרש 1',a:5,b:2},
+  {id:'m7',round:'סבב 3',time:'20:00–20:30',court:'מגרש 2',a:6,b:0},
+  {id:'m8',round:'סבב 3',time:'20:00–20:30',court:'מגרש 3',a:4,b:3},
+  {id:'m9',round:'סבב 4',time:'20:30–21:00',court:'מגרש 1',a:5,b:3},
+  {id:'m10',round:'סבב 4',time:'20:30–21:00',court:'מגרש 2',a:1,b:2},
+  {id:'m11',round:'סבב 4',time:'20:30–21:00',court:'מגרש 3',a:6,b:0}
+];
+const WAITS = [
+  {round:'סבב 1',time:'19:00–19:30',pair:2},
+  {round:'סבב 2',time:'19:30–20:00',pair:5},
+  {round:'סבב 3',time:'20:00–20:30',pair:1},
+  {round:'סבב 4',time:'20:30–21:00',pair:4}
+];
+const KO_TEMPLATE = [
+  {id:'sf1',phase:'חצי גמר',time:'21:15–21:45',court:'מגרש 1',labelA:'#1 בדירוג',labelB:'#4 בדירוג'},
+  {id:'sf2',phase:'חצי גמר',time:'21:15–21:45',court:'מגרש 2',labelA:'#2 בדירוג',labelB:'#3 בדירוג'},
+  {id:'final',phase:'גמר',time:'21:45–22:15',court:'מגרש 1',labelA:'מנצח חצי א׳',labelB:'מנצח חצי ב׳'},
+  {id:'bronze',phase:'מקום 3',time:'21:45–22:15',court:'מגרש 2',labelA:'מפסיד חצי א׳',labelB:'מפסיד חצי ב׳'}
+];
+
+let db=null, dbRef=null, firebaseReady=false;
+let state={results:{}, ko:{}, updatedAt:null};
+let myPair=Number(localStorage.getItem('myPair') ?? 4);
+let adminOn=false;
+
+function isConfigReady(){return firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('PASTE_') && firebaseConfig.databaseURL && !firebaseConfig.databaseURL.includes('PASTE_');}
+async function initFirebase(){
+  if(!isConfigReady()){
+    document.getElementById('firebaseWarning').style.display='block';
+    document.getElementById('connectionStatus').innerHTML='מצב: <b>מקומי בלבד — חסרים פרטי Firebase</b>';
+    loadLocal(); renderAll(); return;
+  }
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const { getDatabase, ref, onValue, set } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app); dbRef = ref(db, 'tournaments/' + TOURNAMENT_ID); firebaseReady=true;
+    window.__fbSet = set;
+    onValue(dbRef, snap => {
+      const val = snap.val();
+      if(val) state = {...state, ...val, results: val.results || {}, ko: val.ko || {}};
+      document.getElementById('connectionStatus').innerHTML='מצב: <b>מחובר — עדכון חי פעיל</b>';
+      renderAll();
+    }, err=>{
+      document.getElementById('connectionStatus').innerHTML='מצב: <b>שגיאת Firebase — עובד מקומית</b>';
+      document.getElementById('firebaseWarning').style.display='block';
+      console.error(err); loadLocal(); renderAll();
     });
-  }
-  // rackets (simple paddle shape)
-  for (let i = 0; i < 7; i++) {
-    OBJECTS.push({
-      type: 'racket',
-      x: Math.random() * W,
-      y: Math.random() * H,
-      angle: Math.random() * Math.PI * 2,
-      vangle: (Math.random() - .5) * .004,
-      vx: (Math.random() - .5) * .2,
-      vy: (Math.random() - .5) * .2,
-      size: 28 + Math.random() * 20,
-      alpha: .07 + Math.random() * .07
-    });
-  }
-  // court lines (static diamonds)
-  for (let i = 0; i < 5; i++) {
-    OBJECTS.push({
-      type: 'diamond',
-      x: Math.random() * W,
-      y: Math.random() * H,
-      size: 18 + Math.random() * 22,
-      alpha: .05 + Math.random() * .06,
-      vx: (Math.random() - .5) * .15,
-      vy: (Math.random() - .5) * .15,
-    });
+  }catch(e){
+    console.error(e); document.getElementById('connectionStatus').innerHTML='מצב: <b>לא ניתן לטעון Firebase — עובד מקומית</b>'; loadLocal(); renderAll();
   }
 }
-
-function drawBall(o) {
-  ctx.save();
-  ctx.globalAlpha = o.alpha;
-  // outer ring
-  ctx.beginPath();
-  ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
-  ctx.strokeStyle = o.color;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  // fuzzy inner fill
-  ctx.beginPath();
-  ctx.arc(o.x, o.y, o.r * .72, 0, Math.PI * 2);
-  ctx.fillStyle = o.color;
-  ctx.fill();
-  // seam curve
-  ctx.beginPath();
-  ctx.arc(o.x, o.y, o.r * .72, -0.4, 0.4);
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.restore();
+function loadLocal(){try{state=JSON.parse(localStorage.getItem('tournamentState')||'null')||state}catch(e){}}
+async function saveState(){
+  state.updatedAt = new Date().toISOString();
+  localStorage.setItem('tournamentState', JSON.stringify(state));
+  if(firebaseReady && dbRef && window.__fbSet){ await window.__fbSet(dbRef, state); }
+  renderAll();
 }
 
-function drawRacket(o) {
-  ctx.save();
-  ctx.translate(o.x, o.y);
-  ctx.rotate(o.angle);
-  ctx.globalAlpha = o.alpha;
-  const s = o.size;
-  // head (rounded rect)
-  ctx.beginPath();
-  ctx.roundRect(-s*.45, -s*.55, s*.9, s*.9, s*.2);
-  ctx.strokeStyle = '#2d8c55';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  // strings horizontal
-  for (let i = -3; i <= 3; i++) {
-    ctx.beginPath();
-    ctx.moveTo(-s*.38, i * s*.1);
-    ctx.lineTo(s*.38, i * s*.1);
-    ctx.strokeStyle = '#2d8c55';
-    ctx.lineWidth = .7;
-    ctx.globalAlpha = o.alpha * .6;
-    ctx.stroke();
-  }
-  // strings vertical
-  for (let i = -3; i <= 3; i++) {
-    ctx.beginPath();
-    ctx.moveTo(i * s*.12, -s*.48);
-    ctx.lineTo(i * s*.12, s*.3);
-    ctx.stroke();
-  }
-  // handle
-  ctx.globalAlpha = o.alpha;
-  ctx.beginPath();
-  ctx.moveTo(-s*.1, s*.35);
-  ctx.lineTo(s*.1, s*.35);
-  ctx.lineTo(s*.08, s*.75);
-  ctx.lineTo(-s*.08, s*.75);
-  ctx.closePath();
-  ctx.fillStyle = '#2d8c55';
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawDiamond(o) {
-  ctx.save();
-  ctx.translate(o.x, o.y);
-  ctx.globalAlpha = o.alpha;
-  ctx.beginPath();
-  ctx.moveTo(0, -o.size);
-  ctx.lineTo(o.size * .6, 0);
-  ctx.lineTo(0, o.size);
-  ctx.lineTo(-o.size * .6, 0);
-  ctx.closePath();
-  ctx.strokeStyle = '#2d8c55';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawBg() {
-  const W = canvas.width, H = canvas.height;
-  // soft court-green gradient background
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, '#eaf5ea');
-  grad.addColorStop(1, '#f0f8f0');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // faint court lines
-  ctx.save();
-  ctx.strokeStyle = 'rgba(80,160,80,.07)';
-  ctx.lineWidth = 1;
-  // baseline
-  ctx.beginPath(); ctx.moveTo(W*.1, H*.15); ctx.lineTo(W*.9, H*.15); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W*.1, H*.85); ctx.lineTo(W*.9, H*.85); ctx.stroke();
-  // sidelines
-  ctx.beginPath(); ctx.moveTo(W*.1, H*.15); ctx.lineTo(W*.1, H*.85); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W*.9, H*.15); ctx.lineTo(W*.9, H*.85); ctx.stroke();
-  // centre line
-  ctx.beginPath(); ctx.moveTo(W*.5, H*.15); ctx.lineTo(W*.5, H*.85); ctx.stroke();
-  // service line
-  ctx.beginPath(); ctx.moveTo(W*.1, H*.5); ctx.lineTo(W*.9, H*.5); ctx.stroke();
-  ctx.restore();
-
-  for (const o of OBJECTS) {
-    if (o.type === 'ball') drawBall(o);
-    else if (o.type === 'racket') drawRacket(o);
-    else drawDiamond(o);
-  }
-}
-
-function tick() {
-  const W = canvas.width, H = canvas.height;
-  for (const o of OBJECTS) {
-    o.x += o.vx;
-    o.y += o.vy;
-    if (o.x < -80) o.x = W + 80;
-    if (o.x > W + 80) o.x = -80;
-    if (o.y < -80) o.y = H + 80;
-    if (o.y > H + 80) o.y = -80;
-    if (o.angle !== undefined) o.angle += o.vangle;
-  }
-  drawBg();
-  requestAnimationFrame(tick);
-}
-
-initObjects();
-tick();
-
-// ── app logic ──────────────────────────────────────────────────
-const PAIRS = ['מיקי+דודו','סער+עומר','רענן+מורן','אסף+טל','דניס+דניאל','שמעון+תומר','מרקו+אשר'];
-const MATCHES = [[4,0],[5,1],[6,3],[6,1],[4,2],[0,3],[5,2],[6,0],[4,3],[5,3],[1,2],[6,0]];
-const results = new Array(12).fill(null);
-
-function showTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  el.classList.add('active');
-  if (name === 'admin') updateStandings();
-}
-
-function saveMatch(matchIdx) {
-  const row = document.querySelector('[data-match="' + matchIdx + '"]');
-  const inputs = row.querySelectorAll('.score-input');
-  const a = inputs[0].value.trim(), b = inputs[1].value.trim();
-  if (a === '' || b === '') return;
-  results[matchIdx] = { a: parseInt(a), b: parseInt(b) };
-  const btn = row.querySelector('.save-btn');
-  btn.textContent = '✓';
-  btn.classList.add('saved');
-  setTimeout(() => { btn.textContent = 'עדכן'; }, 1400);
-  updateStandings();
-}
-
-function updateStandings() {
-  const stats = PAIRS.map(name => ({ name, pts: 0, w: 0, l: 0, d: 0, played: 0 }));
-  results.forEach((r, i) => {
-    if (!r) return;
-    const [ai, bi] = MATCHES[i];
-    stats[ai].played++; stats[bi].played++;
-    if (r.a > r.b) { stats[ai].pts += 3; stats[ai].w++; stats[bi].l++; }
-    else if (r.b > r.a) { stats[bi].pts += 3; stats[bi].w++; stats[ai].l++; }
-    else { stats[ai].pts += 1; stats[ai].d++; stats[bi].pts += 1; stats[bi].d++; }
+function p(id){return PAIRS.find(x=>x.id===id)}
+function resultOf(id){return state.results?.[id] || state.ko?.[id] || null}
+function scoreText(r){return r ? `${r.a}:${r.b}` : '—'}
+function computeStandings(){
+  const stats=PAIRS.map(x=>({id:x.id,name:x.name,color:x.color,played:0,w:0,l:0,d:0,pts:0,gf:0,ga:0,diff:0}));
+  LEAGUE_MATCHES.forEach(m=>{
+    const r=state.results[m.id]; if(!r) return;
+    const A=stats[m.a], B=stats[m.b]; A.played++; B.played++; A.gf+=r.a; A.ga+=r.b; B.gf+=r.b; B.ga+=r.a;
+    if(r.a>r.b){A.pts+=3;A.w++;B.l++;} else if(r.b>r.a){B.pts+=3;B.w++;A.l++;} else {A.pts++;B.pts++;A.d++;B.d++;}
   });
-  stats.sort((a, b) => b.pts - a.pts || b.w - a.w);
-  const tbody = document.getElementById('standings-body');
-  tbody.innerHTML = stats.map((s, i) => {
-    const emoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
-    const hl = i < 4 ? ' class="highlight"' : '';
-    return `<tr${hl}><td><span class="rank-num">${emoji}</span></td><td class="pair-cell">${s.name}</td><td style="text-align:center;color:#888">${s.played}</td><td style="text-align:center;color:#2d8c55">${s.w}</td><td style="text-align:center;color:#c0392b">${s.l}</td><td style="text-align:center;color:#b07d10">${s.d}</td><td style="text-align:center" class="pts-cell">${s.pts}</td></tr>`;
-  }).join('');
+  stats.forEach(s=>s.diff=s.gf-s.ga);
+  return stats.sort((a,b)=>b.pts-a.pts || b.w-a.w || b.diff-a.diff || b.gf-a.gf);
+}
+function leagueComplete(){return LEAGUE_MATCHES.every(m=>state.results[m.id]);}
+function koMatches(){
+  const st=computeStandings();
+  const sf1={...KO_TEMPLATE[0],a:st[0]?.id,b:st[3]?.id};
+  const sf2={...KO_TEMPLATE[1],a:st[1]?.id,b:st[2]?.id};
+  const r1=state.ko.sf1, r2=state.ko.sf2;
+  const win=(m,r)=>!r?null:(r.a>=r.b?m.a:m.b), lose=(m,r)=>!r?null:(r.a>=r.b?m.b:m.a);
+  const final={...KO_TEMPLATE[2],a:win(sf1,r1),b:win(sf2,r2)};
+  const bronze={...KO_TEMPLATE[3],a:lose(sf1,r1),b:lose(sf2,r2)};
+  return [sf1,sf2,final,bronze];
+}
+function getNextFor(pairId){
+  const all=[...LEAGUE_MATCHES, ...(leagueComplete()?koMatches():[])].filter(m=>m.a===pairId||m.b===pairId);
+  return all.find(m=>!resultOf(m.id));
 }
 
-updateStandings();
+function renderAll(){renderSelect(); renderNext(); renderPairs(); renderSchedule(); renderResults(); renderFinals(); document.body.classList.toggle('admin-on', adminOn)}
+function renderSelect(){const sel=document.getElementById('myPairSelect'); sel.innerHTML=PAIRS.map(x=>`<option value="${x.id}" ${x.id===myPair?'selected':''}>🎾 ${x.name}</option>`).join('')}
+function renderNext(){
+  const box=document.getElementById('nextMatchCard'); const m=getNextFor(myPair); const wait=WAITS.find(w=>w.pair===myPair && !LEAGUE_MATCHES.some(mm=>(mm.a===myPair||mm.b===myPair)&&mm.time===w.time&&!state.results[mm.id]));
+  if(m){const opp=m.a===myPair?m.b:m.a; box.innerHTML=`<div class="card-title"><h2>🎾 המשחק הבא שלכם</h2><span class="small">${m.round||m.phase}</span></div><div class="big">${p(myPair).name}</div><div>נגד <b>${p(opp)?.name || (m.a===myPair?m.labelB:m.labelA)}</b></div><div class="court-line"><span>🕗 ${m.time}</span><span>📍 ${m.court}</span></div>`}
+  else if(wait){box.innerHTML=`<div class="card-title"><h2>☕ אתם ממתינים עכשיו</h2><span class="small">${wait.round}</span></div><div class="big">${p(myPair).name}</div><div>המשחק הבא יופיע כאן אוטומטית.</div><div class="court-line"><span>🕗 ${wait.time}</span></div>`}
+  else {box.innerHTML=`<div class="card-title"><h2>✅ אין משחק פתוח כרגע</h2></div><div class="big">${p(myPair).name}</div><div>אחרי הזנת התוצאות, הנוקאאוט יתעדכן אוטומטית.</div>`}
+}
+function renderPairs(){
+  const st=computeStandings(); const grid=document.getElementById('pairsGrid');
+  grid.innerHTML=st.map((s,i)=>`<div class="pair-card ${s.id===myPair?'highlight-mine':''}" onclick="openPair(${s.id})"><div class="pair-color" style="background:${s.color}"></div><div><div class="pair-name">🎾 ${i<4?'⭐ ':''}${s.name}</div><div class="pair-sub">מקום ${i+1} · הפרש משחקונים ${s.diff}</div></div><div class="pair-stats"><div class="stat"><b>${s.played}</b><span>מש׳</span></div><div class="stat"><b>${s.w}</b><span>נצ׳</span></div><div class="stat"><b>${s.pts}</b><span>נק׳</span></div></div></div>`).join('')
+}
+function matchHtml(m, editable=false){
+  const r=resultOf(m.id); const mine=(m.a===myPair||m.b===myPair); const aName=m.a!=null?p(m.a)?.name:m.labelA, bName=m.b!=null?p(m.b)?.name:m.labelB;
+  let html=`<div class="match ${mine?'mine':''} ${r?'done':''} ${m.phase?'ko':''}"><div class="match-top"><span class="time">${m.round||m.phase} · ${m.time}</span><span class="court">${m.court}</span></div><div class="teams">${aName||m.labelA} נגד ${bName||m.labelB}</div><div class="score">תוצאה: ${scoreText(r)}</div>`;
+  if(editable && adminOn && m.a!=null && m.b!=null){html+=scoreBox(m,r)}
+  html+='</div>'; return html;
+}
+function scoreBox(m,r){return `<div class="score-box"><div class="score-title">הזנת סט קצר — משחקונים</div><div class="score-input-row"><div class="team-lbl">${p(m.a).name}</div><input class="score-input" id="${m.id}_a" type="number" min="0" max="7" value="${r?.a??''}" placeholder="0"><span style="text-align:center;font-weight:900">:</span><input class="score-input" id="${m.id}_b" type="number" min="0" max="7" value="${r?.b??''}" placeholder="0"><div class="team-lbl">${p(m.b).name}</div></div><button class="btn save-result" onclick="saveResult('${m.id}')">שמור תוצאה</button><div class="hint">דוגמאות: 6:3, 5:4, 4:4. ניצחון 3 נק׳, תיקו 1 נק׳.</div></div>`}
+function renderSchedule(){
+  const list=document.getElementById('scheduleList');
+  const rounds=['סבב 1','סבב 2','סבב 3','סבב 4'];
+  let html='';
+  rounds.forEach((round, idx)=>{
+    const matches=LEAGUE_MATCHES.filter(m=>m.round===round);
+    const waits=WAITS.filter(w=>w.round===round);
+    const time=matches[0]?.time || waits[0]?.time || '';
+    html += `<div class="schedule-round">
+      <div class="schedule-round-head"><b>🎾 ${round}</b><span>🕗 ${time}</span></div>
+      <div class="schedule-round-games">`;
+    matches.forEach(m=>{ html += matchHtml(m,false); });
+    waits.forEach(w=>{
+      html += `<div class="match wait ${w.pair===myPair?'mine':''}"><div class="match-top"><span class="time">${w.round} · ${w.time}</span><span class="court">ממתין</span></div><div class="teams">☕ ${p(w.pair).name}</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+  list.innerHTML=html;
+}
+function renderResults(){
+  const list=document.getElementById('resultsList');
+  const rounds=['סבב 1','סבב 2','סבב 3','סבב 4'];
+  let html='';
+  if(!adminOn){
+    html += `<div class="admin-locked">🔐 לשונית אדמין מיועדת להזנת תוצאות. כדי לערוך תוצאות יש להזין קוד מנהל למעלה וללחוץ "מצב מנהל".</div>`;
+  }
+  rounds.forEach(round=>{
+    const matches=LEAGUE_MATCHES.filter(m=>m.round===round);
+    const time=matches[0]?.time || '';
+    html += `<div class="admin-round-card"><div class="admin-round-head"><b>${round}</b><span>🕗 ${time}</span></div><div class="admin-round-body">`;
+    matches.forEach(m=>{
+      const r=state.results[m.id] || {};
+      html += `<div class="admin-match-card">
+        <div class="admin-match-title"><b>${p(m.a).name} נגד ${p(m.b).name}</b><span class="court">${m.court}</span></div>
+        <div class="admin-score-line">
+          <div class="team-lbl">${p(m.a).name}</div>
+          <input id="${m.id}_a" type="number" min="0" max="7" value="${r.a ?? ''}" placeholder="0" ${adminOn?'':'disabled'}>
+          <span style="text-align:center;font-weight:900">:</span>
+          <input id="${m.id}_b" type="number" min="0" max="7" value="${r.b ?? ''}" placeholder="0" ${adminOn?'':'disabled'}>
+          <div class="team-lbl">${p(m.b).name}</div>
+        </div>
+        ${adminOn?`<button class="btn admin-save" onclick="saveResult('${m.id}')">שמור תוצאה</button>`:''}
+        <div class="hint">סט קצר לפי משחקונים — לדוגמה 6:3, 5:4 או 4:4</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  list.innerHTML=html;
+}
+function renderFinals(){
+  const list=document.getElementById('finalsList'); const champ=document.getElementById('championBox');
+  if(!leagueComplete()){list.innerHTML='<div class="match wait"><div class="teams">הנוקאאוט יופיע אוטומטית אחרי שכל 12 משחקי הליגה יוזנו.</div></div>'; champ.classList.remove('show'); return;}
+  const kms=koMatches(); list.innerHTML=kms.map(m=>matchHtml(m,true)).join('');
+  const f=kms.find(x=>x.id==='final'), r=state.ko.final;
+  if(r && f.a!=null && f.b!=null){const winner=r.a>=r.b?f.a:f.b; champ.classList.add('show'); champ.innerHTML=`<div class="cup">🏆</div><h2>אלופי הטורניר</h2><div class="big" style="font-size:24px;font-weight:900;color:var(--clay-dark)">${p(winner).name}</div>`; showConfettiOnce();} else champ.classList.remove('show');
+}
+
+window.showPanel=(name,btn)=>{document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel'+name).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderAll();};
+window.saveMyPair=()=>{myPair=Number(document.getElementById('myPairSelect').value);localStorage.setItem('myPair',myPair);renderAll();};
+window.toggleAdmin=()=>{adminOn = document.getElementById('adminCode').value.trim()===ADMIN_CODE; if(!adminOn) alert('קוד מנהל לא נכון'); renderAll();};
+window.saveResult=async(id)=>{const a=Number(document.getElementById(id+'_a').value), b=Number(document.getElementById(id+'_b').value); if(Number.isNaN(a)||Number.isNaN(b)||a<0||b<0||a>7||b>7){alert('נא להזין משחקונים בין 0 ל‑7');return;} const target=id.startsWith('m')?'results':'ko'; state[target] = state[target] || {}; state[target][id]={a,b}; await saveState();};
+window.resetTournament=async()=>{if(confirm('לאפס את כל התוצאות?')){state={results:{},ko:{},updatedAt:new Date().toISOString()}; await saveState();}};
+window.openPair=(id)=>{const modal=document.getElementById('pairModal');document.getElementById('modalTitle').textContent='🎾 '+p(id).name; let items=LEAGUE_MATCHES.filter(m=>m.a===id||m.b===id).map(m=>matchHtml({...m},false)).join(''); items+=WAITS.filter(w=>w.pair===id).map(w=>`<div class="match wait"><div class="match-top"><span class="time">${w.round} · ${w.time}</span><span class="court">ממתין</span></div><div class="teams">${p(id).name}</div></div>`).join(''); if(leagueComplete()) items+=koMatches().filter(m=>m.a===id||m.b===id).map(m=>matchHtml(m,false)).join(''); document.getElementById('modalMatches').innerHTML=items; modal.classList.add('show');};
+window.closeModal=()=>document.getElementById('pairModal').classList.remove('show');
+let confettiShown=false; function showConfettiOnce(){if(confettiShown)return;confettiShown=true;const c=document.getElementById('confetti');c.innerHTML='';c.classList.add('show');for(let i=0;i<38;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'%';el.style.top='-20px';el.style.background=[PAIRS[i%7].color,'#c86f3c','#174c35','#f2c2a3'][i%4];el.style.animationDelay=(Math.random()*0.8)+'s';c.appendChild(el)}setTimeout(()=>c.classList.remove('show'),3200)}
+
+initFirebase();
 </script>
 </body>
 </html>
