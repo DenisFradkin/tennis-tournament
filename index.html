@@ -294,6 +294,18 @@ window.openPair=(id)=>{const modal=document.getElementById('pairModal');document
 window.closeModal=()=>document.getElementById('pairModal').classList.remove('show');
 let confettiShown=false; function showConfettiOnce(){if(confettiShown)return;confettiShown=true;const c=document.getElementById('confetti');c.innerHTML='';c.classList.add('show');for(let i=0;i<38;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'%';el.style.top='-20px';el.style.background=[PAIRS[i%7].color,'#c86f3c','#174c35','#f2c2a3'][i%4];el.style.animationDelay=(Math.random()*0.8)+'s';c.appendChild(el)}setTimeout(()=>c.classList.remove('show'),3200)}
 
+// מציגים את הדף מיד בטעינה, גם לפני שה-Firebase מחזיר נתונים.
+// זה פותר מצב שבו הדף הראשי נראה ריק עד שלוחצים על לשונית אחרת.
+renderAll();
+
+// אם Firebase מתעכב, משאירים את התצוגה הראשונית פעילה ולא מחכים לו.
+setTimeout(() => {
+  if (!firebaseReady) {
+    document.getElementById('connectionStatus').innerHTML = 'מצב: <b>מנסה להתחבר ל‑Firebase...</b>';
+    renderAll();
+  }
+}, 1500);
+
 initFirebase();
 </script>
 </body>
