@@ -48,7 +48,7 @@
   <div class="hero">
     <div class="eyebrow">טורניר גבעת השלושה</div>
     <h1>טורניר זוגות 2026</h1>
-    <div class="meta"><span class="pill">14 משתתפים</span><span class="pill">7 זוגות</span><span class="pill">3 מגרשים</span><span class="pill">19:00–22:15</span></div>
+    <div class="meta"><span class="pill">16 משתתפים</span><span class="pill">8 זוגות</span><span class="pill">3 מגרשים</span><span class="pill">19:00–22:15</span></div>
     <div class="status" id="connectionStatus">מצב: <b>מנסה להתחבר ל‑Firebase...</b></div>
     <div class="firebase-warning" id="firebaseWarning">צריך להדביק את פרטי ה‑Firebase שלך בתוך הקובץ באזור <b>firebaseConfig</b>. עד אז האתר יעבוד מקומית בלבד במכשיר הזה.</div>
   </div>
@@ -101,37 +101,46 @@ const firebaseConfig = {
 };
 
 const ADMIN_CODE = '2026';
-const TOURNAMENT_ID = 'doubles-2026';
+const TOURNAMENT_ID = 'givat-hashlosha-doubles-2026-8pairs-v1';
 
 const PAIRS = [
   {id:0,name:'🐺 מיקי + דודו',players:['מיקי','דודו'],color:'#2f855a'},
   {id:1,name:'🐯 סער + עומר',players:['סער','עומר'],color:'#2b6cb0'},
   {id:2,name:'🦅 רענן + מורן',players:['רענן','מורן'],color:'#805ad5'},
-  {id:3,name:'🐻 שמעון + טל',players:['שמעון','טל'],color:'#d69e2e'},
+  {id:3,name:'🐻 אסף + תומר',players:['אסף','תומר'],color:'#d69e2e'},
   {id:4,name:'🦁 דניס + דניאל',players:['דניס','דניאל'],color:'#c05621'},
-  {id:5,name:'🐍 אסף + תומר',players:['אסף','תומר'],color:'#319795'},
-  {id:6,name:'🦊 מרקו + אשר',players:['מרקו','אשר'],color:'#e53e3e'}
+  {id:5,name:'🐍 שמעון + טל',players:['שמעון','טל'],color:'#319795'},
+  {id:6,name:'🦊 מרקו + אשר',players:['מרקו','אשר'],color:'#e53e3e'},
+  {id:7,name:'🐼 אדם + חוה',players:['אדם','חוה'],color:'#6b7280'}
 ];
 
 const LEAGUE_MATCHES = [
-  {id:'m0',round:'סבב 1',time:'19:00–19:30',court:'מגרש 1',a:4,b:0},
-  {id:'m1',round:'סבב 1',time:'19:00–19:30',court:'מגרש 2',a:5,b:1},
-  {id:'m2',round:'סבב 1',time:'19:00–19:30',court:'מגרש 3',a:6,b:3},
-  {id:'m3',round:'סבב 2',time:'19:30–20:00',court:'מגרש 1',a:6,b:1},
-  {id:'m4',round:'סבב 2',time:'19:30–20:00',court:'מגרש 2',a:4,b:2},
-  {id:'m5',round:'סבב 2',time:'19:30–20:00',court:'מגרש 3',a:0,b:3},
-  {id:'m6',round:'סבב 3',time:'20:00–20:30',court:'מגרש 1',a:5,b:2},
-  {id:'m7',round:'סבב 3',time:'20:00–20:30',court:'מגרש 2',a:6,b:0},
-  {id:'m8',round:'סבב 3',time:'20:00–20:30',court:'מגרש 3',a:4,b:3},
-  {id:'m9',round:'סבב 4',time:'20:30–21:00',court:'מגרש 1',a:5,b:3},
-  {id:'m10',round:'סבב 4',time:'20:30–21:00',court:'מגרש 2',a:1,b:2},
-  {id:'m11',round:'סבב 4',time:'20:30–21:00',court:'מגרש 3',a:6,b:0}
+  // לוח ל־8 זוגות: 4 סבבים, 3 מגרשים, כל זוג משחק 3 פעמים ונח פעם אחת
+  {id:'m0',round:'סבב 1',time:'19:00–19:30',court:'מגרש 1',a:2,b:3},
+  {id:'m1',round:'סבב 1',time:'19:00–19:30',court:'מגרש 2',a:4,b:5},
+  {id:'m2',round:'סבב 1',time:'19:00–19:30',court:'מגרש 3',a:6,b:7},
+
+  {id:'m3',round:'סבב 2',time:'19:30–20:00',court:'מגרש 1',a:0,b:1},
+  {id:'m4',round:'סבב 2',time:'19:30–20:00',court:'מגרש 2',a:4,b:6},
+  {id:'m5',round:'סבב 2',time:'19:30–20:00',court:'מגרש 3',a:5,b:7},
+
+  {id:'m6',round:'סבב 3',time:'20:00–20:30',court:'מגרש 1',a:0,b:2},
+  {id:'m7',round:'סבב 3',time:'20:00–20:30',court:'מגרש 2',a:1,b:6},
+  {id:'m8',round:'סבב 3',time:'20:00–20:30',court:'מגרש 3',a:3,b:7},
+
+  {id:'m9',round:'סבב 4',time:'20:30–21:00',court:'מגרש 1',a:0,b:3},
+  {id:'m10',round:'סבב 4',time:'20:30–21:00',court:'מגרש 2',a:1,b:4},
+  {id:'m11',round:'סבב 4',time:'20:30–21:00',court:'מגרש 3',a:2,b:5}
 ];
 const WAITS = [
-  {round:'סבב 1',time:'19:00–19:30',pair:2},
-  {round:'סבב 2',time:'19:30–20:00',pair:5},
-  {round:'סבב 3',time:'20:00–20:30',pair:1},
-  {round:'סבב 4',time:'20:30–21:00',pair:4}
+  {round:'סבב 1',time:'19:00–19:30',pair:0},
+  {round:'סבב 1',time:'19:00–19:30',pair:1},
+  {round:'סבב 2',time:'19:30–20:00',pair:2},
+  {round:'סבב 2',time:'19:30–20:00',pair:3},
+  {round:'סבב 3',time:'20:00–20:30',pair:4},
+  {round:'סבב 3',time:'20:00–20:30',pair:5},
+  {round:'סבב 4',time:'20:30–21:00',pair:6},
+  {round:'סבב 4',time:'20:30–21:00',pair:7}
 ];
 const KO_TEMPLATE = [
   {id:'sf1',phase:'חצי גמר',time:'21:15–21:45',court:'מגרש 1',labelA:'#1 בדירוג',labelB:'#4 בדירוג'},
@@ -172,10 +181,11 @@ async function initFirebase(){
     console.error(e); document.getElementById('connectionStatus').innerHTML='מצב: <b>לא ניתן לטעון Firebase — עובד מקומית</b>'; loadLocal(); renderAll();
   }
 }
-function loadLocal(){try{state=JSON.parse(localStorage.getItem('tournamentState')||'null')||state}catch(e){}}
+function storageKey(){return 'tournamentState_' + TOURNAMENT_ID}
+function loadLocal(){try{state=JSON.parse(localStorage.getItem(storageKey())||'null')||state}catch(e){}}
 async function saveState(){
   state.updatedAt = new Date().toISOString();
-  localStorage.setItem('tournamentState', JSON.stringify(state));
+  localStorage.setItem(storageKey(), JSON.stringify(state));
   if(firebaseReady && dbRef && window.__fbSet){ await window.__fbSet(dbRef, state); }
   renderAll();
 }
@@ -323,6 +333,8 @@ setTimeout(() => {
   }
 }, 1500);
 
+loadLocal();
+renderAll();
 initFirebase();
 </script>
 </body>
